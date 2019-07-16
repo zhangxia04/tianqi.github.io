@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>天知道</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/iconfont.css" />
+  <link rel="stylesheet" href="css/main2.css" />
+  <style>
+    .tem .iconfont {
+      font-size: 50px;
+    }
+    .list-item {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .list-enter-active,
+        .list-leave-active {
+            transition: all 1s;
+        }
+
+        .list-enter,
+        .list-leave-to
+
+        /* .list-leave-active for below version 2.1.8 */
+            {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        li:nth-child(2){
+          transition-delay: 0.2s;
+        }
+        li:nth-child(3){
+          transition-delay: 0.4s;
+        }
+        li:nth-child(4){
+          transition-delay: 0.6s;
+        }
+        li:nth-child(5){
+          transition-delay: 0.8s;
+        }
+  </style>
+</head>
+
+<body>
+  <div class="wrap" id="app">
+    <div class="search_form">
+      <div class="logo"><img src="img/logo.png" alt="logo" /></div>
+      <div class="form_group">
+        <input type="text" class="input_txt" placeholder="请输入查询的天气" v-model="city" @keyup.13="search()"/>
+        <button class="input_sub" :class="loading" @click="search()">搜 索</button>
+      </div>
+      <div class="hotkey">
+        <a href="javascript:;" @click="searchCity('北京')">北京</a>
+        <a href="javascript:;" @click="searchCity('上海')">上海</a>
+        <a href="javascript:;" @click="searchCity('广州')">广州</a>
+        <a href="javascript:;" @click="searchCity('深圳')">深圳</a>
+      </div>
+    </div>
+    <ul class="weather_list">
+      <transition-group name="list" tag="ul">
+      <li v-for="(item,index) in cityList" :key="index">
+        <div class="info_type">
+          <!-- 雨 -->
+          <span class="iconfont" v-if="item.type.indexOf('雨')!=-1">&#xe931;</span>
+          <!-- 晴 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('晴')!=-1">&#xe933;</span>
+          <!-- 阴 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('阴')!=-1">&#xe92d;</span>
+          <!-- 雪 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('雪')!=-1">&#xeb87;</span>
+          <!-- 云 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('云')!=-1">&#xeb79;</span>
+          <!-- 雷 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('雷')!=-1">&#xeb77;</span>
+          <!-- 雹 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('雹')!=-1">&#xeb76;</span>
+          <!-- 雾 -->
+          <span class="iconfont" v-else-if="item.type.indexOf('雾')!=-1">&#xeb75;</span> </div>
+        <div class="info_temp">高 <b>{{item.high.split(' ')[1]}}</b><br />低 {{item.low.split(' ')[1]}}</div>
+        <div class="info_date"><b>{{city1}}</b><span>{{month}}月{{item.date.split('日')[0]}}日</span></div>
+          <!-- 直接用新的值来保存返回数据的city -->
+      </li> 
+      </transition-group>
+                            
+    </ul>
+    
+  </div>
+  <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
+  <script>
+   let app= new Vue({
+      el: '#app',
+      data: {
+        city: '',
+        loading: '',
+        cityList: [],
+        month: new Date().getMonth(),
+        city1:""
+      },
+      methods: {
+        search() {
+          //清空数组
+          this.cityList=[]
+          //添加样式
+          this.loading = 'loading'
+          //点击了之后获取city信息发送请求
+          axios
+            .get(`http://wthrcdn.etouch.cn/weather_mini?city=${this.city}`)
+            .then(backData => {
+              console.log(backData);
+              if (backData.data.status == 1000) {
+                this.city1 = backData.data.data.city;
+                this.cityList = backData.data.data.forecast;
+              }
+
+            })
+          setTimeout(() => {
+            this.loading = ''
+
+          }, 500)
+        },
+        searchCity(city2){
+          this.city=city2
+          this.search() 
+        },
+        // enterApply(){
+        //   window.onload=()=>{
+        //     setTimeout(()=>{
+        //      this.searchCity('深圳')
+        //     },500)
+        //   }
+        // }
+
+
+      },
+      mounted() {
+        setTimeout(()=>{
+        this.searchCity('深圳')
+
+        },500)
+      },
+     
+    })
+    // app.enterApply()
+  </script>
+</body>
+
+</html>
